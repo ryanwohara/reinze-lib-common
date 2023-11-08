@@ -1,0 +1,22 @@
+[package]
+name = "reinze-lib-common"
+version = "0.1.0"
+edition = "2018"
+authors = ["Ryan W. O'Hara <ryan@git.ryanwohara.com"]
+description = "A common set of functions for Reinze plugins."
+homepage = "https://github.com/ryanwohara/reinze-lib-common"
+keywords = ["reinze", "irc", "bot", "rust", "plugin", "library"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ryanwohara/reinze-lib-common"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dotenv = "0.15.0"
+format_num = "0.1.0"
+mysql = "24.0.0"
+reqwest = { version = "0.11", features = ["json", "blocking"] }
+
+[lib]
+crate-type = ["dylib"]
