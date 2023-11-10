@@ -82,24 +82,20 @@ pub fn xp_to_level(xp: u32) -> u32 {
 }
 
 // Adds commas to a number
-pub fn commas(n: f64, f: &str = "f") -> String {
+pub fn commas(n: f64, f: &str) -> String {
     let num = NumberFormat::new();
 
-    num.format(format!(",{}", f), n)
+    num.format(&format!(",{}", f), n)
 }
 
 // Adds commas to a string
-pub fn commas_from_string(n: &str, f: &str = "") -> String {
+pub fn commas_from_string(n: &str, f: &str) -> String {
     let n = match n.parse::<f64>() {
         Ok(n) => n,
         Err(_) => 0.0,
     };
 
-    if f.len() == 0 {
-        commas(n)
-    } else {
-        commas(n, f)
-    }
+    commas(n, f)
 }
 
 // Catches shorthand skill names and returns the full name
