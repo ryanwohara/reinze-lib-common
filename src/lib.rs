@@ -89,7 +89,7 @@ pub fn commas(n: f64, f: &str = "f") -> String {
 }
 
 // Adds commas to a string
-pub fn commas_from_string(n: &str, f: &str) -> String {
+pub fn commas_from_string(n: &str, f: &str = "") -> String {
     let n = match n.parse::<f64>() {
         Ok(n) => n,
         Err(_) => 0.0,
