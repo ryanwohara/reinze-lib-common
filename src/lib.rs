@@ -411,73 +411,88 @@ mod tests {
 
     #[test]
     fn test_commas() {
-        assert_eq!(commas(0.0), "0");
-        assert_eq!(commas(1.0), "1");
-        assert_eq!(commas(10.0), "10");
-        assert_eq!(commas(100.0), "100");
-        assert_eq!(commas(1000.0), "1,000");
-        assert_eq!(commas(10000.0), "10,000");
-        assert_eq!(commas(100000.0), "100,000");
-        assert_eq!(commas(1000000.0), "1,000,000");
-        assert_eq!(commas(10000000.0), "10,000,000");
-        assert_eq!(commas(100000000.0), "100,000,000");
-        assert_eq!(commas(1000000000.0), "1,000,000,000");
-        assert_eq!(commas(10000000000.0), "10,000,000,000");
-        assert_eq!(commas(100000000000.0), "100,000,000,000");
-        assert_eq!(commas(1000000000000.0), "1,000,000,000,000");
-        assert_eq!(commas(10000000000000.0), "10,000,000,000,000");
-        assert_eq!(commas(100000000000000.0), "100,000,000,000,000");
-        assert_eq!(commas(1000000000000000.0), "1,000,000,000,000,000");
-        assert_eq!(commas(10000000000000000.0), "10,000,000,000,000,000");
-        assert_eq!(commas(100000000000000000.0), "100,000,000,000,000,000");
-        assert_eq!(commas(1000000000000000000.0), "1,000,000,000,000,000,000");
-        assert_eq!(commas(10000000000000000000.0), "10,000,000,000,000,000,000");
+        assert_eq!(commas(0.0, "d"), "0");
+        assert_eq!(commas(1.0, "d"), "1");
+        assert_eq!(commas(10.0, "d"), "10");
+        assert_eq!(commas(100.0, "d"), "100");
+        assert_eq!(commas(1000.0, "d"), "1,000");
+        assert_eq!(commas(10000.0, "d"), "10,000");
+        assert_eq!(commas(100000.0, "d"), "100,000");
+        assert_eq!(commas(1000000.0, "d"), "1,000,000");
+        assert_eq!(commas(10000000.0, "d"), "10,000,000");
+        assert_eq!(commas(100000000.0, "d"), "100,000,000");
+        assert_eq!(commas(1000000000.0, "d"), "1,000,000,000");
+        assert_eq!(commas(10000000000.0, "d"), "10,000,000,000");
+        assert_eq!(commas(100000000000.0, "d"), "100,000,000,000");
+        assert_eq!(commas(1000000000000.0, "d"), "1,000,000,000,000");
+        assert_eq!(commas(10000000000000.0, "d"), "10,000,000,000,000");
+        assert_eq!(commas(100000000000000.0, "d"), "100,000,000,000,000");
+        assert_eq!(commas(1000000000000000.0, "d"), "1,000,000,000,000,000");
+        assert_eq!(commas(10000000000000000.0, "d"), "10,000,000,000,000,000");
+        assert_eq!(commas(100000000000000000.0, "d"), "100,000,000,000,000,000");
         assert_eq!(
-            commas(100000000000000000000.0),
+            commas(1000000000000000000.0, "d"),
+            "1,000,000,000,000,000,000"
+        );
+        assert_eq!(
+            commas(10000000000000000000.0, "d"),
+            "10,000,000,000,000,000,000"
+        );
+        assert_eq!(
+            commas(100000000000000000000.0, "d"),
             "100,000,000,000,000,000,000"
         );
     }
 
     #[test]
     fn test_commas_from_string() {
-        assert_eq!(commas_from_string("0"), "0");
-        assert_eq!(commas_from_string("1"), "1");
-        assert_eq!(commas_from_string("10"), "10");
-        assert_eq!(commas_from_string("100"), "100");
-        assert_eq!(commas_from_string("1000"), "1,000");
-        assert_eq!(commas_from_string("10000"), "10,000");
-        assert_eq!(commas_from_string("100000"), "100,000");
-        assert_eq!(commas_from_string("1000000"), "1,000,000");
-        assert_eq!(commas_from_string("10000000"), "10,000,000");
-        assert_eq!(commas_from_string("100000000"), "100,000,000");
-        assert_eq!(commas_from_string("1000000000"), "1,000,000,000");
-        assert_eq!(commas_from_string("10000000000"), "10,000,000,000");
-        assert_eq!(commas_from_string("100000000000"), "100,000,000,000");
-        assert_eq!(commas_from_string("1000000000000"), "1,000,000,000,000");
-        assert_eq!(commas_from_string("10000000000000"), "10,000,000,000,000");
-        assert_eq!(commas_from_string("100000000000000"), "100,000,000,000,000");
+        assert_eq!(commas_from_string("0", "d"), "0");
+        assert_eq!(commas_from_string("1", "d"), "1");
+        assert_eq!(commas_from_string("10", "d"), "10");
+        assert_eq!(commas_from_string("100", "d"), "100");
+        assert_eq!(commas_from_string("1000", "d"), "1,000");
+        assert_eq!(commas_from_string("10000", "d"), "10,000");
+        assert_eq!(commas_from_string("100000", "d"), "100,000");
+        assert_eq!(commas_from_string("1000000", "d"), "1,000,000");
+        assert_eq!(commas_from_string("10000000", "d"), "10,000,000");
+        assert_eq!(commas_from_string("100000000", "d"), "100,000,000");
+        assert_eq!(commas_from_string("1000000000", "d"), "1,000,000,000");
+        assert_eq!(commas_from_string("10000000000", "d"), "10,000,000,000");
+        assert_eq!(commas_from_string("100000000000", "d"), "100,000,000,000");
         assert_eq!(
-            commas_from_string("1000000000000000"),
+            commas_from_string("1000000000000", "d"),
+            "1,000,000,000,000"
+        );
+        assert_eq!(
+            commas_from_string("10000000000000", "d"),
+            "10,000,000,000,000"
+        );
+        assert_eq!(
+            commas_from_string("100000000000000", "d"),
+            "100,000,000,000,000"
+        );
+        assert_eq!(
+            commas_from_string("1000000000000000", "d"),
             "1,000,000,000,000,000"
         );
         assert_eq!(
-            commas_from_string("10000000000000000"),
+            commas_from_string("10000000000000000", "d"),
             "10,000,000,000,000,000"
         );
         assert_eq!(
-            commas_from_string("100000000000000000"),
+            commas_from_string("100000000000000000", "d"),
             "100,000,000,000,000,000"
         );
         assert_eq!(
-            commas_from_string("1000000000000000000"),
+            commas_from_string("1000000000000000000", "d"),
             "1,000,000,000,000,000,000"
         );
         assert_eq!(
-            commas_from_string("10000000000000000000"),
+            commas_from_string("10000000000000000000", "d"),
             "10,000,000,000,000,000,000"
         );
         assert_eq!(
-            commas_from_string("100000000000000000000"),
+            commas_from_string("100000000000000000000", "d"),
             "100,000,000,000,000,000,000"
         );
     }
