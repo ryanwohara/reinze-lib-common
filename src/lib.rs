@@ -159,6 +159,14 @@ pub fn skills() -> Vec<String> {
     ]
 }
 
+pub fn unranked(v: Vec<String>) -> String {
+    if v.is_empty() {
+        c2("Unranked")
+    } else {
+        v.join(&c1(" | "))
+    }
+}
+
 pub fn get_rsn(author: &str, rsn_n: &str) -> core::result::Result<Vec<mysql::Row>, mysql::Error> {
     let mut conn = match database::connect() {
         Ok(conn) => conn,
