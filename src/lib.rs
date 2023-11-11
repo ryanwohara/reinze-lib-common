@@ -188,8 +188,8 @@ pub fn get_cmb(
     let base = ((def + hp) as f64 + ((pray + 0) as f64 / 2.0)) * 0.25;
 
     let melee = 0.325 * (att + str) as f64;
-    let range = 0.325 * (range.to_owned() as f64 / 2.0 + range.to_owned() as f64);
-    let magic = 0.325 * (mage.to_owned() as f64 / 2.0 + mage.to_owned() as f64);
+    let range = 0.325 * ((range.to_owned() as f64 / 2.0) + range.to_owned() as f64);
+    let magic = 0.325 * ((mage.to_owned() as f64 / 2.0) + mage.to_owned() as f64);
 
     let max_contribution = f64::max(melee, f64::max(range, magic));
 
