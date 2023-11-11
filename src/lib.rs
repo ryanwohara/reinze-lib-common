@@ -3,6 +3,7 @@ mod database;
 use format_num::NumberFormat;
 use mysql::{prelude::*, *};
 use reqwest;
+use std::cmp::Ord;
 
 pub fn capitalize(s: &str) -> String {
     let mut c = s.chars();
@@ -184,21 +185,15 @@ pub fn get_cmb(
     pray: &u32,
     mage: &u32,
 ) -> f64 {
-    let cmb_level: f64;
-    let base = (def + hp + pray) as f64;
-    let melee = (att + str) as f64;
-    let range = range.to_owned() as f64 * 1.5;
-    let magic = mage.to_owned() as f64 * 1.5;
+    let base = ((def + hp) as f64 + ((pray + 0) as f64 / 2.0)) * 0.25;
 
-    if melee > range && melee > magic {
-        cmb_level = (base + melee) * 0.25;
-    } else if range > magic {
-        cmb_level = (base + range) * 0.25;
-    } else {
-        cmb_level = (base + magic) * 0.25;
-    }
+    let melee = 0.325 * (att + str) as f64;
+    let range = 0.325 * (range.to_owned() as f64 / 2.0 + range.to_owned() as f64);
+    let magic = 0.325 * (mage.to_owned() as f64 / 2.0 + mage.to_owned() as f64);
 
-    cmb_level
+    let max_contribution = f64::max(melee, f64::max(range, magic));
+
+    base + max_contribution
 }
 
 pub fn get_rsn(author: &str, rsn_n: &str) -> core::result::Result<Vec<mysql::Row>, mysql::Error> {
