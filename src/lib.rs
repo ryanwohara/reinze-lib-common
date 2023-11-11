@@ -175,6 +175,24 @@ pub fn not_found(v: Vec<String>) -> String {
     }
 }
 
+pub fn get_cmb(att: u32, str: u32, def: u32, hp: u32, range: u32, pray: u32, mage: u32) -> f64 {
+    let cmb_level: f64;
+    let base = (def + hp + pray) as f64;
+    let melee = (att + str) as f64;
+    let range = range as f64 * 1.5;
+    let magic = mage as f64 * 1.5;
+
+    if melee > range && melee > magic {
+        cmb_level = (base + melee) * 0.25;
+    } else if range > magic {
+        cmb_level = (base + range) * 0.25;
+    } else {
+        cmb_level = (base + magic) * 0.25;
+    }
+
+    cmb_level
+}
+
 pub fn get_rsn(author: &str, rsn_n: &str) -> core::result::Result<Vec<mysql::Row>, mysql::Error> {
     let mut conn = match database::connect() {
         Ok(conn) => conn,
