@@ -16,4 +16,5 @@ repository = "https://github.com/ryanwohara/reinze-lib-common"
 dotenv = "0.15.0"
 format_num = "0.1.0"
 mysql = "24.0.0"
+regex = "1.10.2"
 reqwest = { version = "0.11", features = ["json", "blocking"] }

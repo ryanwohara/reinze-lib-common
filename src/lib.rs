@@ -2,8 +2,8 @@ mod database;
 
 use format_num::NumberFormat;
 use mysql::{prelude::*, *};
+use regex::Regex;
 use reqwest;
-use std::cmp::Ord;
 
 pub fn capitalize(s: &str) -> String {
     let mut c = s.chars();
@@ -223,10 +223,10 @@ pub fn get_rsn(author: &str, rsn_n: &str) -> core::result::Result<Vec<mysql::Row
     }
 }
 
-pub fn get_stats(rsn: &str) -> core::result::Result<Vec<Vec<String>>, ()> {
+pub fn get_stats(rsn: &str, endpoint: &str) -> core::result::Result<Vec<Vec<String>>, ()> {
     let mut stats = Vec::new();
 
-    let body = match query_stats(rsn) {
+    let body = match query_stats(rsn, endpoint) {
         Ok(body) => body,
         Err(_) => return Err(()),
     };
@@ -243,11 +243,84 @@ pub fn get_stats(rsn: &str) -> core::result::Result<Vec<Vec<String>>, ()> {
     Ok(stats)
 }
 
-fn query_stats(rsn: &str) -> core::result::Result<String, ()> {
-    let url = format!(
-        "https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player={}",
-        rsn
+pub fn process_account_type_flags(
+    query: &str,
+    split: Vec<String>,
+) -> (Vec<String>, String, String) {
+    let re_ser = Regex::new(r"(?:^|\b|\s)-([iuhdlt1]|sk|fs)(?:\s|\b|$)").unwrap();
+    let nil = (
+        split.to_owned(),
+        "".to_owned(),
+        "https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player=".to_owned(),
     );
+
+    let (mut output, flag) = re_ser
+        .captures(query)
+        .map(|capture| {
+            let flag = capture.get(1).map_or("", |flag| flag.as_str());
+            (
+                match flag {
+                    "i" => (
+                        split,
+                        l("Iron"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws?player=".to_owned(),
+                    ),
+                    "u" => (
+                        split,
+                        l("Ultimate"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws?player=".to_owned(),
+                    ),
+                    "h" => (
+                        split,
+                        l("Hardcode"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=".to_owned(),
+                    ),
+                    "d" => (
+                        split,
+                        l("Deadman"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_deadman/index_lite.ws?player=".to_owned(),
+                    ),
+                    "l" => (
+                        split,
+                        l("Seasonal"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_seasonal/index_lite.ws?player=".to_owned(),
+                    ),
+                    "t" => (
+                        split,
+                        l("Tournament"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_tournament/index_lite.ws?player=".to_owned(),
+                    ),
+                    "1" => (
+                        split,
+                        l("1 Def"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws?player=".to_owned(),
+                    ),
+                    "sk" => (
+                        split,
+                        l("Skiller"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.ws?player=".to_owned(),
+                    ),
+                    "fs" => (
+                        split,
+                        l("Fresh Start"),
+                        "https://secure.runescape.com/m=hiscore_oldschool_fresh_start/index_lite.ws?player=".to_owned(),
+                    ),
+                    _ => nil.to_owned(),
+                },
+                flag,
+            )
+        })
+        .unwrap_or_else(|| (nil, ""));
+
+    if !flag.is_empty() {
+        output.0.retain(|arg| arg != &format!("-{}", flag));
+    }
+
+    output
+}
+
+fn query_stats(rsn: &str, endpoint: &str) -> core::result::Result<String, ()> {
+    let url = format!("{}{}", endpoint, rsn);
 
     let resp = match reqwest::blocking::get(&url) {
         Ok(resp) => resp,
