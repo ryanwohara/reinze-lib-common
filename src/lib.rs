@@ -319,6 +319,10 @@ pub fn process_account_type_flags(
     output
 }
 
+pub fn convert_split_to_string(split: Vec<&str>) -> Vec<String> {
+    split.into_iter().map(|s| s.to_string()).collect()
+}
+
 fn query_stats(rsn: &str, endpoint: &str) -> core::result::Result<String, ()> {
     let url = format!("{}{}", endpoint, rsn);
 
