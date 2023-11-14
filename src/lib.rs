@@ -193,7 +193,7 @@ pub fn get_cmb(
 
     let max_contribution = f64::max(melee, f64::max(ranged, magic));
 
-    base + max_contribution
+    f64::round((base + max_contribution) * 1000.0) / 1000.0
 }
 
 pub fn get_rsn(author: &str, rsn_n: &str) -> core::result::Result<Vec<mysql::Row>, mysql::Error> {
