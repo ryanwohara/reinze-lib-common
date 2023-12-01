@@ -99,6 +99,13 @@ pub fn commas_from_string(n: &str, f: &str) -> String {
     commas(n, f)
 }
 
+// Removes the trailing zeroes from a string (intended to be used on a float->&str that may have commas)
+fn remove_trailing_zeroes(str: &str) -> String {
+    let re = Regex::new(r"\.?0+$").unwrap();
+
+    re.replace_all(str, "").to_string()
+}
+
 // Catches shorthand skill names and returns the full name
 pub fn skill(s: &str) -> String {
     match s.to_lowercase().as_str() {
@@ -609,6 +616,28 @@ mod tests {
             commas_from_string("100000000000000000000", "d"),
             "100,000,000,000,000,000,000"
         );
+    }
+
+    #[test]
+    fn test_remove_trailing_zeroes() {
+        assert_eq!(remove_trailing_zeroes("0.00000"), "0");
+        assert_eq!(remove_trailing_zeroes("1.00000"), "1");
+        assert_eq!(remove_trailing_zeroes("10.00000"), "10");
+        assert_eq!(remove_trailing_zeroes("100.00000"), "100");
+        assert_eq!(remove_trailing_zeroes("1,000.00000"), "1,000");
+        assert_eq!(remove_trailing_zeroes("10,000.00000"), "10,000");
+        assert_eq!(remove_trailing_zeroes("100,000.00000"), "100,000");
+        assert_eq!(remove_trailing_zeroes("1,000,000.00000"), "1,000,000");
+        assert_eq!(remove_trailing_zeroes("10,000,000.00000"), "10,000,000");
+        assert_eq!(remove_trailing_zeroes("0.0"), "0");
+        assert_eq!(remove_trailing_zeroes("1.0"), "1");
+        assert_eq!(remove_trailing_zeroes("10.0"), "10");
+        assert_eq!(remove_trailing_zeroes("100.0"), "100");
+        assert_eq!(remove_trailing_zeroes("1,000.0"), "1,000");
+        assert_eq!(remove_trailing_zeroes("10,000.0"), "10,000");
+        assert_eq!(remove_trailing_zeroes("100,000.0"), "100,000");
+        assert_eq!(remove_trailing_zeroes("1,000,000.0"), "1,000,000");
+        assert_eq!(remove_trailing_zeroes("10,000,000.0"), "10,000,000");
     }
 
     #[test]
