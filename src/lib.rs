@@ -100,7 +100,7 @@ pub fn commas_from_string(n: &str, f: &str) -> String {
 }
 
 // Removes the trailing zeroes from a string (intended to be used on a float->&str that may have commas)
-fn remove_trailing_zeroes(str: &str) -> String {
+pub fn remove_trailing_zeroes(str: &str) -> String {
     let re = Regex::new(r"\.?0+$").unwrap();
 
     re.replace_all(str, "").to_string()
