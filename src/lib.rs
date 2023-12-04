@@ -1,7 +1,6 @@
-mod database;
+pub mod database;
 
 use format_num::NumberFormat;
-use mysql::{prelude::*, *};
 use regex::Regex;
 use reqwest;
 
