@@ -1,6 +1,8 @@
 pub mod database;
 
 use format_num::NumberFormat;
+#[allow(unused_imports)]
+use mysql::{prelude::*, *};
 use regex::Regex;
 use reqwest;
 
