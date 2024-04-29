@@ -20,17 +20,5 @@ fn get_connection_string() -> String {
     let pass = std::env::var("DB_PASS").expect("DB_PASS must be set");
     let db = std::env::var("DB_NAME").expect("DB_NAME must be set");
 
-    let mut url = String::new();
-    url.push_str("mysql://");
-    url.push_str(&user);
-    url.push_str(":");
-    url.push_str(&pass);
-    url.push_str("@");
-    url.push_str(&host);
-    url.push_str(":");
-    url.push_str(&port);
-    url.push_str("/");
-    url.push_str(&db);
-
-    url
+    format!("mysql://{user}:{pass}@{host}:{port}/{db}")
 }
