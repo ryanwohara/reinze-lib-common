@@ -1,5 +1,6 @@
 use dotenv::dotenv;
-use mysql::*;
+use mysql::{prelude::*, *};
+use reqwest;
 
 pub fn connect() -> std::result::Result<PooledConn, Error> {
     get_connection(&get_connection_string())

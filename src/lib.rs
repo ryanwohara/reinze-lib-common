@@ -103,28 +103,6 @@ pub fn convert_split_to_string(split: Vec<&str>) -> Vec<String> {
     split.into_iter().map(|s| s.to_string()).collect()
 }
 
-fn query_stats(rsn: &str, endpoint: &str) -> core::result::Result<String, ()> {
-    let url = format!("{}{}", endpoint, rsn);
-
-    let resp = match reqwest::blocking::get(&url) {
-        Ok(resp) => resp,
-        Err(e) => {
-            println!("Error getting stats: {}", e);
-            return Err(());
-        }
-    };
-
-    let body = match resp.text() {
-        Ok(body) => body.to_owned(),
-        Err(e) => {
-            println!("Error getting stats: {}", e);
-            return Err(());
-        }
-    };
-
-    Ok(body)
-}
-
 #[cfg(test)]
 mod tests {
     // import names from outer (for mod tests) scope
