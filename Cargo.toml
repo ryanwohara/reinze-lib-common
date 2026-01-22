@@ -5,7 +5,7 @@ edition = "2018"
 authors = ["Ryan W. O'Hara <ryan@git.ryanwohara.com"]
 description = "A common set of functions for Reinze plugins."
 homepage = "https://github.com/ryanwohara/reinze-lib-common"
-keywords = ["reinze", "irc", "bot", "rust", "plugin", "library"]
+keywords = ["reinze", "irc", "bot", "rust", "plugin"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/ryanwohara/reinze-lib-common"
@@ -15,6 +15,6 @@ repository = "https://github.com/ryanwohara/reinze-lib-common"
 [dependencies]
 dotenv = "0.15.0"
 format_num = "0.1.0"
-mysql = "26.0.0"
-regex = "1.10.2"
-reqwest = { version = "0.12.4", features = ["json", "blocking"] }
+mysql = "27.0.0"
+regex = "1.12.2"
+reqwest = { version = "0.13.1", features = ["json", "blocking"] }
