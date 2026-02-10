@@ -1,10 +1,11 @@
+pub mod author;
 pub mod database;
+pub mod source;
 
 use format_num::NumberFormat;
 #[allow(unused_imports)]
 use mysql::{prelude::*, *};
 use regex::Regex;
-use reqwest;
 
 pub fn capitalize(s: &str) -> String {
     let mut c = s.chars();
@@ -17,45 +18,117 @@ pub fn capitalize(s: &str) -> String {
     }
 }
 
+#[derive(Clone)]
+pub struct Colors {
+    c1: String,
+    c2: String,
+}
+
+impl Colors {
+    pub fn color1() -> String {
+        "14".to_string()
+    }
+
+    pub fn color2() -> String {
+        "04".to_string()
+    }
+
+    pub fn c0<T>(&self, s: T, i: u32) -> String
+    where
+        T: ToString,
+    {
+        let color = match i {
+            1 => &self.c1,
+            2 | _ => &self.c2,
+        };
+
+        format!("\x03{}{}", color.to_string(), s.to_string())
+    }
+
+    pub fn c1<T>(&self, str: T) -> String
+    where
+        T: ToString,
+    {
+        self.c0(str, 1)
+    }
+
+    pub fn c2<T>(&self, str: T) -> String
+    where
+        T: ToString,
+    {
+        self.c0(str, 2)
+    }
+}
+
+impl Default for Colors {
+    fn default() -> Self {
+        Self {
+            c1: Self::color1(),
+            c2: Self::color2(),
+        }
+    }
+}
+
 // Gray
 // c1
-pub fn c1(s: &str) -> String {
-    format!("\x0314{}", s)
+pub fn c1<T>(s: T) -> String
+where
+    T: ToString,
+{
+    format!("\x0314{}", s.to_string())
 }
 
 // Red
 // c2
-pub fn c2(s: &str) -> String {
-    format!("\x0304{}", s)
+pub fn c2<T>(s: T) -> String
+where
+    T: ToString,
+{
+    format!("\x0304{}", s.to_string())
 }
 
 // Red
 // c3
-pub fn c3(s: &str) -> String {
-    format!("\x0305{}", s)
+pub fn c3<T>(s: T) -> String
+where
+    T: ToString,
+{
+    format!("\x0305{}", s.to_string())
 }
 
 // Green
 // c4
-pub fn c4(s: &str) -> String {
-    format!("\x0303{}", s)
+pub fn c4<T>(s: T) -> String
+where
+    T: ToString,
+{
+    format!("\x0303{}", s.to_string())
 }
 
 // Yellow
 // c5
-pub fn c5(s: &str) -> String {
-    format!("\x0307{}", s)
+pub fn c5<T>(s: T) -> String
+where
+    T: ToString,
+{
+    format!("\x0307{}", s.to_string())
 }
 
 // A function for wrapping a string in brackets that are colored gray
 // l
-pub fn l(s: &str) -> String {
+pub fn l<T>(s: T) -> String
+where
+    T: ToString,
+{
     format!("{}{}{}", c1("["), c2(s), c1("]"))
 }
 
-// A function for wrapping a string in parenthesis that are colored gray
+// A function for wrapping a string in parentheses that are colored gray
 // p
-pub fn p(s: &str) -> String {
+pub fn p<T>(s: T) -> String
+where
+    T: ToString,
+{
     format!("{}{}{}", c1("("), c2(s), c1(")"))
 }
 
@@ -68,10 +141,7 @@ pub fn commas(n: f64, f: &str) -> String {
 
 // Adds commas to a string
 pub fn commas_from_string(n: &str, f: &str) -> String {
-    let n = match n.parse::<f64>() {
-        Ok(n) => n,
-        Err(_) => 0.0,
-    };
+    let n = n.parse::<f64>().unwrap_or(0.0);
 
     commas(n, f)
 }
