@@ -48,6 +48,20 @@ impl Author {
         c2(s)
     }
 
+    pub fn l<T>(&self, s: T) -> String
+    where
+        T: ToString,
+    {
+        format!("{}{}{}", self.c1("["), self.c2(s), self.c1("]"))
+    }
+
+    pub fn p<T>(&self, s: T) -> String
+    where
+        T: ToString,
+    {
+        format!("{}{}{}", self.c1("("), self.c2(s), self.c1(")"))
+    }
+
     #[allow(dead_code)]
     async fn get_colors(&self) -> Colors {
         cache::get(self.host.to_string()).await

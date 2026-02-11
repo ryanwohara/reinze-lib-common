@@ -1,4 +1,5 @@
 use crate::author::Author;
+use crate::{c1, c2};
 
 pub struct Source {
     pub rsn_n: String,
@@ -32,5 +33,19 @@ impl Source {
         T: ToString,
     {
         self.author.c2(s)
+    }
+
+    pub fn l<T>(&self, s: T) -> String
+    where
+        T: ToString,
+    {
+        self.author.l(s)
+    }
+
+    pub fn p<T>(&self, s: T) -> String
+    where
+        T: ToString,
+    {
+        self.author.p(s)
     }
 }
