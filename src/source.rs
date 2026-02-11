@@ -19,4 +19,18 @@ impl Source {
             query: query.to_string(),
         }
     }
+
+    pub fn c1<T>(&self, s: T) -> String
+    where
+        T: ToString,
+    {
+        self.author.c1(s)
+    }
+
+    pub fn c2<T>(&self, s: T) -> String
+    where
+        T: ToString,
+    {
+        self.author.c2(s)
+    }
 }
