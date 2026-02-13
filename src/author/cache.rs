@@ -24,7 +24,7 @@ pub async fn get(author_host: String) -> Colors {
             };
 
             let colors: (String, String) = match conn.exec_first(
-                "SELECT color1, color2 FROM colors WHERE host = :author_host ORDER BY index ASC",
+                "SELECT color1, color2 FROM colors WHERE host = :author_host",
                 params! { author_host },
             ) {
                 Ok(Some(colors)) => colors,
