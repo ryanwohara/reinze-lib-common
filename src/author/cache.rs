@@ -23,22 +23,20 @@ pub async fn get(author_host: String) -> Colors {
                 }
             };
 
-            let colors: Vec<String> = match conn.exec(
-                "SELECT color FROM colors WHERE host = :author_host ORDER BY index ASC",
+            let colors: (String, String) = match conn.exec_first(
+                "SELECT color1, color2 FROM colors WHERE host = :author_host ORDER BY index ASC",
                 params! { author_host },
             ) {
-                Ok(color) => color,
+                Ok(Some(colors)) => colors,
+                Ok(None) => (Colors::color1(), Colors::color2()),
                 Err(e) => {
                     println!("Error getting rsn: {}", e);
                     return Colors::default();
                 }
             };
 
-            let color1 = Colors::color1();
-            let color2 = Colors::color2();
-
-            let c1 = colors.get(0).unwrap_or(&color1).to_string();
-            let c2 = colors.get(1).unwrap_or(&color2).to_string();
+            let c1 = colors.0;
+            let c2 = colors.1;
 
             Colors { c1, c2 }
         })
