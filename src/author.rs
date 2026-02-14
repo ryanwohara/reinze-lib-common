@@ -88,5 +88,5 @@ impl Author {
 }
 
 fn wrap(s: &str, color: &str) -> String {
-    format!("\x03{}{}\x03", color, s)
+    format!("\x03{}{}", color, s)
 }
