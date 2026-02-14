@@ -20,8 +20,8 @@ pub fn capitalize(s: &str) -> String {
 
 #[derive(Clone)]
 pub struct Colors {
-    c1: String,
-    c2: String,
+    pub c1: String,
+    pub c2: String,
 }
 
 impl Colors {
