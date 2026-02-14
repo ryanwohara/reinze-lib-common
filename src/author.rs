@@ -19,8 +19,10 @@ impl Author {
     {
         let author = a.to_string();
         let (nick, mut host) = author.split_once("!").unwrap_or(("", &author));
+        let replaced;
         if host.starts_with("~") {
-            host = host.split_once("~").unwrap_or(("", host)).1;
+            replaced = host.replace("~", "");
+            host = &replaced;
         }
 
         let (ident, address) = host.split_once("@").unwrap_or(("", &host));
