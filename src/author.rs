@@ -69,4 +69,8 @@ impl Author {
     pub async fn set_colors(&self, colors: Colors) {
         cache::set(self.host.to_string(), colors).await
     }
+
+    pub async fn clear_colors(&self) {
+        cache::set(self.host.to_string(), Colors::default()).await
+    }
 }

@@ -56,4 +56,8 @@ impl Source {
     pub async fn set_colors(&self, colors: Colors) {
         self.author.set_colors(colors).await
     }
+
+    pub async fn clear_colors(&self) {
+        self.author.clear_colors().await
+    }
 }
