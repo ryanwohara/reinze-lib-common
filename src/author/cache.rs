@@ -1,7 +1,7 @@
 use crate::{database, Colors};
 use moka::future::Cache;
 use mysql::params;
-use mysql::prelude::{Queryable, TextQuery};
+use mysql::prelude::Queryable;
 use once_cell::sync::Lazy;
 use std::time::Duration;
 

@@ -1,6 +1,6 @@
 mod cache;
 
-use crate::{c1, c2, Colors};
+use crate::Colors;
 
 pub struct Author {
     pub nick: String,
@@ -69,9 +69,7 @@ impl Author {
     }
 
     pub fn colors(&self) -> Colors {
-        let rt = tokio::runtime::Runtime::new().unwrap();
-
-        rt.block_on(async { self.get_colors().await })
+        tokio::runtime::Handle::current().block_on(async { self.get_colors().await })
     }
 
     pub async fn get_colors(&self) -> Colors {
