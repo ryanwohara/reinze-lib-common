@@ -38,14 +38,18 @@ impl Author {
     where
         T: ToString,
     {
-        c1(s)
+        let color = self.colors().c1;
+
+        wrap(s.to_string().as_str(), &color)
     }
 
     pub fn c2<T>(&self, s: T) -> String
     where
         T: ToString,
     {
-        c2(s)
+        let color = self.colors().c2;
+
+        wrap(s.to_string().as_str(), &color)
     }
 
     pub fn l<T>(&self, s: T) -> String
@@ -62,6 +66,12 @@ impl Author {
         format!("{}{}{}", self.c1("("), self.c2(s), self.c1(")"))
     }
 
+    pub fn colors(&self) -> Colors {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+
+        rt.block_on(async { self.get_colors().await })
+    }
+
     pub async fn get_colors(&self) -> Colors {
         cache::get(self.host.to_string()).await
     }
@@ -73,4 +83,8 @@ impl Author {
     pub async fn clear_colors(&self) {
         cache::set(self.host.to_string(), Colors::default()).await
     }
+}
+
+fn wrap(s: &str, color: &str) -> String {
+    format!("\x03{}{}\x03", color, s)
 }
