@@ -70,7 +70,9 @@ impl Author {
     }
 
     pub fn colors(&self) -> Colors {
-        tokio::runtime::Handle::current().block_on(async { self.get_colors().await })
+        let rt = tokio::runtime::Runtime::new().unwrap();
+
+        rt.block_on(async { self.get_colors().await })
     }
 
     pub async fn get_colors(&self) -> Colors {
