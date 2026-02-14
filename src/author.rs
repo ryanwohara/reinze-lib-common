@@ -2,6 +2,7 @@ mod cache;
 
 use crate::Colors;
 
+#[derive(Clone)]
 pub struct Author {
     pub nick: String,
     pub host: String,
