@@ -43,7 +43,6 @@ pub async fn get(author_host: String) -> Colors {
         .await
 }
 
-#[allow(dead_code)]
 pub async fn set(author_host: String, color: Colors) {
     CACHE.insert(author_host, color).await;
 }

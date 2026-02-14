@@ -1,5 +1,5 @@
 use crate::author::Author;
-use crate::{c1, c2};
+use crate::{c1, c2, Colors};
 
 pub struct Source {
     pub rsn_n: String,
@@ -47,5 +47,13 @@ impl Source {
         T: ToString,
     {
         self.author.p(s)
+    }
+
+    pub async fn get_colors(&self) -> Colors {
+        self.author.get_colors().await
+    }
+
+    pub async fn set_colors(&self, colors: Colors) {
+        self.author.set_colors(colors).await
     }
 }

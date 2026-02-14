@@ -62,8 +62,11 @@ impl Author {
         format!("{}{}{}", self.c1("("), self.c2(s), self.c1(")"))
     }
 
-    #[allow(dead_code)]
-    async fn get_colors(&self) -> Colors {
+    pub async fn get_colors(&self) -> Colors {
         cache::get(self.host.to_string()).await
+    }
+
+    pub async fn set_colors(&self, colors: Colors) {
+        cache::set(self.host.to_string(), colors).await
     }
 }
