@@ -103,7 +103,7 @@ pub extern "C" fn color_ffi(host: *const c_char, to_store: *const c_char) -> Col
     let hostname = unsafe { CStr::from_ptr(host) }.to_str().unwrap();
     let colors = unsafe { CStr::from_ptr(to_store) }.to_str().unwrap();
 
-    if colors.len() == 0 {
+    if colors.is_empty() {
         let colors = get(hostname);
 
         let c1 = CString::new(colors.c1.to_string()).unwrap().into_raw();

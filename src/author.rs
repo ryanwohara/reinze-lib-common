@@ -12,7 +12,7 @@ pub struct Author {
     #[allow(dead_code)]
     pub address: String,
     pub full: String,
-    pub get_color: extern "C" fn(*const c_char, *const c_char) -> ColorResult,
+    pub color: extern "C" fn(*const c_char, *const c_char) -> ColorResult,
 }
 
 impl Author {
@@ -36,7 +36,7 @@ impl Author {
             ident: ident.to_string(),
             address: address.to_string(),
             full: author.to_string(),
-            get_color: f,
+            color: f,
         }
     }
 
@@ -76,7 +76,7 @@ impl Author {
         let host = CString::new(self.host.to_string()).unwrap().into_raw();
         let empty = CString::new("").unwrap().into_raw();
 
-        let results = (self.get_color)(host, empty);
+        let results = (self.color)(host, empty);
 
         let c1 = CStr::from_ptr(results.c1).to_string_lossy().into_owned();
         let c2 = CStr::from_ptr(results.c2).to_string_lossy().into_owned();
