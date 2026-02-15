@@ -28,7 +28,7 @@ where
 
     let map = cache.load();
 
-    let colors = match map.get(&author_host.to_string()) {
+    match map.get(&author_host.to_string()) {
         Some(colors) => colors.to_owned(),
         None => {
             let colors = get_from_db(author_host.to_string());
@@ -36,9 +36,7 @@ where
 
             colors
         }
-    };
-
-    colors
+    }
 }
 
 fn get_from_db(author_host: String) -> Colors {
@@ -52,7 +50,7 @@ fn get_from_db(author_host: String) -> Colors {
 
     match conn.exec_first::<(String, String), &str, mysql::Params>(
         "SELECT color1, color2 FROM colors WHERE host = :author_host",
-        params! { "author_host" => author_host.to_string() },
+        params! { author_host },
     ) {
         Ok(Some(colors)) => Colors {
             c1: colors.0,
@@ -101,20 +99,45 @@ pub fn set(author_host: String, colors: Colors) {
     let _ = conn.exec::<bool, &str, mysql::Params>(&statement, params! { author_host, c1, c2 });
 }
 
-pub extern "C" fn get_color_ffi(host: *const c_char) -> ColorResult {
+pub extern "C" fn color_ffi(host: *const c_char, to_store: *const c_char) -> ColorResult {
     let hostname = unsafe { CStr::from_ptr(host) }.to_str().unwrap();
+    let colors = unsafe { CStr::from_ptr(to_store) }.to_str().unwrap();
 
-    let colors = get(hostname);
+    if colors.len() == 0 {
+        let colors = get(hostname);
 
-    let c1 = CString::new(colors.c1.to_string()).unwrap().into_raw();
-    let c2 = CString::new(colors.c2.to_string()).unwrap().into_raw();
+        let c1 = CString::new(colors.c1.to_string()).unwrap().into_raw();
+        let c2 = CString::new(colors.c2.to_string()).unwrap().into_raw();
 
-    let result = ColorResult { c1, c2 };
+        let result = ColorResult { c1, c2 };
 
-    unsafe {
-        _ = CStr::from_ptr(c1);
-        _ = CStr::from_ptr(c2);
+        unsafe {
+            _ = CStr::from_ptr(c1);
+            _ = CStr::from_ptr(c2);
+        }
+
+        result
+    } else {
+        let split = colors.split_once(",").unwrap();
+
+        set(
+            hostname.to_string(),
+            Colors {
+                c1: split.0.to_string(),
+                c2: split.1.to_string(),
+            },
+        );
+
+        let c1 = CString::new(split.0.to_string()).unwrap().into_raw();
+        let c2 = CString::new(split.1.to_string()).unwrap().into_raw();
+
+        let result = ColorResult { c1, c2 };
+
+        unsafe {
+            _ = CStr::from_ptr(c1);
+            _ = CStr::from_ptr(c2);
+        }
+
+        result
     }
-
-    result
 }
