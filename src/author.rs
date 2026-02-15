@@ -1,6 +1,7 @@
 pub mod cache;
 
-use crate::Colors;
+use crate::{ColorResult, Colors};
+use std::os::raw::c_char;
 
 pub struct Author {
     pub nick: String,
@@ -10,10 +11,11 @@ pub struct Author {
     #[allow(dead_code)]
     pub address: String,
     pub full: String,
+    pub get_color: extern "C" fn(*const c_char) -> ColorResult,
 }
 
 impl Author {
-    pub fn create<T>(a: T) -> Self
+    pub fn create<T>(a: T, f: extern "C" fn(*const c_char) -> ColorResult) -> Self
     where
         T: ToString,
     {
@@ -33,6 +35,7 @@ impl Author {
             ident: ident.to_string(),
             address: address.to_string(),
             full: author.to_string(),
+            get_color: f,
         }
     }
 

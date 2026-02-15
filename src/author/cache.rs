@@ -101,10 +101,9 @@ pub fn set(author_host: String, colors: Colors) {
 pub extern "C" fn get_color_ffi(name: *const c_char) -> ColorResult {
     let name = unsafe { CStr::from_ptr(name) }.to_str().unwrap();
 
-    let cache = COLOR_CACHE.get().unwrap();
-    let snapshot = cache.load();
+    let cache = COLOR_CACHE.get().unwrap().load();
 
-    match snapshot.get(name) {
+    match cache.get(name) {
         Some(colors) => ColorResult::from(colors),
         None => ColorResult::default(),
     }
