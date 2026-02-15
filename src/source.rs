@@ -50,7 +50,7 @@ impl Source {
     }
 
     pub fn get_colors(&self) -> Colors {
-        self.author.get_colors()
+        unsafe { self.author.colors() }
     }
 
     pub fn set_colors(&self, colors: Colors) {

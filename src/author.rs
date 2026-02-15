@@ -1,7 +1,9 @@
 pub mod cache;
 
 use crate::{ColorResult, Colors};
+use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
+use std::str::FromStr;
 
 pub struct Author {
     pub nick: String,
@@ -43,7 +45,7 @@ impl Author {
     where
         T: ToString,
     {
-        let color = self.colors().c1;
+        let color = unsafe { self.colors() }.c1;
 
         wrap(s.to_string().as_str(), &color)
     }
@@ -52,7 +54,7 @@ impl Author {
     where
         T: ToString,
     {
-        let color = self.colors().c2;
+        let color = unsafe { self.colors() }.c2;
 
         wrap(s.to_string().as_str(), &color)
     }
@@ -71,12 +73,17 @@ impl Author {
         format!("{}{}{}", self.c1("("), self.c2(s), self.c1(")"))
     }
 
-    pub fn colors(&self) -> Colors {
-        self.get_colors()
-    }
+    pub unsafe fn colors(&self) -> Colors {
+        let host = CString::new(self.host.to_string()).unwrap().into_raw();
 
-    pub fn get_colors(&self) -> Colors {
-        cache::get(self.host.to_string())
+        let results = (self.get_color)(host);
+
+        let c1 = CStr::from_ptr(results.c1).to_string_lossy().into_owned();
+        let c2 = CStr::from_ptr(results.c2).to_string_lossy().into_owned();
+
+        _ = CString::from_raw(host);
+
+        Colors { c1, c2 }
     }
 
     pub fn set_colors(&self, colors: Colors) {
