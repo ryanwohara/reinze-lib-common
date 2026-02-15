@@ -49,15 +49,15 @@ impl Source {
         self.author.p(s)
     }
 
-    pub async fn get_colors(&self) -> Colors {
+    pub fn get_colors(&self) -> Colors {
         self.author.get_colors()
     }
 
-    pub async fn set_colors(&self, colors: Colors) {
+    pub fn set_colors(&self, colors: Colors) {
         self.author.set_colors(colors)
     }
 
-    pub async fn clear_colors(&self) {
+    pub fn clear_colors(&self) {
         self.author.clear_colors()
     }
 }

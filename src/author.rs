@@ -1,7 +1,6 @@
 pub mod cache;
 
 use crate::Colors;
-use tokio::runtime::Handle;
 
 pub struct Author {
     pub nick: String,
