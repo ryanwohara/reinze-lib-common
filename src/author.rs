@@ -3,7 +3,6 @@ pub mod cache;
 use crate::{ColorResult, Colors};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use std::str::FromStr;
 
 pub struct Author {
     pub nick: String,
@@ -13,11 +12,11 @@ pub struct Author {
     #[allow(dead_code)]
     pub address: String,
     pub full: String,
-    pub get_color: extern "C" fn(*const c_char) -> ColorResult,
+    pub get_color: extern "C" fn(*const c_char, *const c_char) -> ColorResult,
 }
 
 impl Author {
-    pub fn create<T>(a: T, f: extern "C" fn(*const c_char) -> ColorResult) -> Self
+    pub fn create<T>(a: T, f: extern "C" fn(*const c_char, *const c_char) -> ColorResult) -> Self
     where
         T: ToString,
     {
@@ -75,13 +74,15 @@ impl Author {
 
     pub unsafe fn colors(&self) -> Colors {
         let host = CString::new(self.host.to_string()).unwrap().into_raw();
+        let empty = CString::new("").unwrap().into_raw();
 
-        let results = (self.get_color)(host);
+        let results = (self.get_color)(host, empty);
 
         let c1 = CStr::from_ptr(results.c1).to_string_lossy().into_owned();
         let c2 = CStr::from_ptr(results.c2).to_string_lossy().into_owned();
 
         _ = CString::from_raw(host);
+        _ = CString::from_raw(empty);
 
         Colors { c1, c2 }
     }
