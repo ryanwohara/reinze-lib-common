@@ -6,7 +6,7 @@ use format_num::NumberFormat;
 #[allow(unused_imports)]
 use mysql::{prelude::*, *};
 use regex::Regex;
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
 #[repr(C)]
@@ -180,6 +180,12 @@ pub fn not_found(v: Vec<String>) -> String {
 
 pub fn convert_split_to_string(split: Vec<&str>) -> Vec<String> {
     split.into_iter().map(|s| s.to_string()).collect()
+}
+
+#[allow(dead_code)]
+fn to_str_or_default(ptr: *const c_char) -> String {
+    let cstr = unsafe { CStr::from_ptr(ptr) };
+    cstr.to_str().unwrap_or_default().to_owned()
 }
 
 #[cfg(test)]
