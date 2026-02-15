@@ -11,7 +11,6 @@ pub struct Author {
     #[allow(dead_code)]
     pub address: String,
     pub full: String,
-    pub runtime: Handle,
 }
 
 impl Author {
@@ -19,7 +18,6 @@ impl Author {
     where
         T: ToString,
     {
-        let runtime = tokio::runtime::Handle::current();
         let author = a.to_string();
         let (nick, mut host) = author.split_once("!").unwrap_or(("", &author));
         let replaced;
@@ -36,7 +34,6 @@ impl Author {
             ident: ident.to_string(),
             address: address.to_string(),
             full: author.to_string(),
-            runtime,
         }
     }
 
