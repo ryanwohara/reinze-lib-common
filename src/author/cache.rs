@@ -3,7 +3,7 @@ use arc_swap::ArcSwap;
 use mysql::params;
 use mysql::prelude::Queryable;
 use std::collections::HashMap;
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::sync::{Arc, OnceLock};
 
@@ -20,16 +20,19 @@ pub async fn init() {
         .expect("Color cache failed to initialize");
 }
 
-pub fn get(author_host: String) -> Colors {
+pub fn get<T>(author_host: T) -> Colors
+where
+    T: ToString,
+{
     let cache = COLOR_CACHE.get().expect("Cache not initialized");
 
     let map = cache.load();
 
-    let colors = match map.get(&author_host) {
+    let colors = match map.get(&author_host.to_string()) {
         Some(colors) => colors.to_owned(),
         None => {
             let colors = get_from_db(author_host.to_string());
-            upsert_color(author_host, colors.clone());
+            upsert_color(author_host.to_string(), colors.clone());
 
             colors
         }
@@ -98,13 +101,20 @@ pub fn set(author_host: String, colors: Colors) {
     let _ = conn.exec::<bool, &str, mysql::Params>(&statement, params! { author_host, c1, c2 });
 }
 
-pub extern "C" fn get_color_ffi(name: *const c_char) -> ColorResult {
-    let name = unsafe { CStr::from_ptr(name) }.to_str().unwrap();
+pub extern "C" fn get_color_ffi(host: *const c_char) -> ColorResult {
+    let hostname = unsafe { CStr::from_ptr(host) }.to_str().unwrap();
 
-    let cache = COLOR_CACHE.get().unwrap().load();
+    let colors = get(hostname);
 
-    match cache.get(name) {
-        Some(colors) => ColorResult::from(colors),
-        None => ColorResult::default(),
+    let c1 = CString::new(colors.c1.to_string()).unwrap().into_raw();
+    let c2 = CString::new(colors.c2.to_string()).unwrap().into_raw();
+
+    let result = ColorResult { c1, c2 };
+
+    unsafe {
+        _ = CStr::from_ptr(c1);
+        _ = CStr::from_ptr(c2);
     }
+
+    result
 }
