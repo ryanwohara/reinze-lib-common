@@ -12,6 +12,7 @@ static COLOR_CACHE: OnceLock<ColorCache> = OnceLock::new();
 
 pub async fn init() {
     let cache = Arc::new(ArcSwap::from_pointee(HashMap::new()));
+
     COLOR_CACHE
         .set(cache.clone())
         .expect("Color cache failed to initialize");
@@ -22,18 +23,47 @@ pub fn get(author_host: String) -> Colors {
 
     let map = cache.load();
 
-    map.get(&author_host)
-        .unwrap_or(&Colors::default())
-        .to_owned()
+    let colors = match map.get(&author_host) {
+        Some(colors) => colors.to_owned(),
+        None => {
+            let colors = get_from_db(author_host.to_string());
+            upsert_color(author_host, colors.clone());
+
+            colors
+        }
+    };
+
+    colors
 }
 
-pub fn upsert_color(name: String, color: Colors) {
+fn get_from_db(author_host: String) -> Colors {
+    let mut conn = match database::connect() {
+        Ok(conn) => conn,
+        Err(e) => {
+            println!("Error connecting to database: {}", e);
+            return Colors::default();
+        }
+    };
+
+    match conn.exec_first::<(String, String), &str, mysql::Params>(
+        "SELECT color1, color2 FROM colors WHERE host = :author_host",
+        params! { "author_host" => author_host.to_string() },
+    ) {
+        Ok(Some(colors)) => Colors {
+            c1: colors.0,
+            c2: colors.1,
+        },
+        Ok(None) | Err(_) => Colors::default(),
+    }
+}
+
+pub fn upsert_color(author_host: String, color: Colors) {
     let cache = COLOR_CACHE.get().expect("COLOR_CACHE not initialized");
 
     let current = cache.load();
     let mut new_map = (**current).clone();
 
-    new_map.insert(name, color);
+    new_map.insert(author_host, color);
 
     cache.store(Arc::new(new_map));
 }
