@@ -120,16 +120,19 @@ pub extern "C" fn color_ffi(host: *const c_char, to_store: *const c_char) -> Col
     } else {
         let split = colors.split_once(",").unwrap();
 
+        let color1 = split.0.to_string();
+        let color2 = split.1.to_string();
+
         set(
             hostname.to_string(),
             Colors {
-                c1: split.0.to_string(),
-                c2: split.1.to_string(),
+                c1: color1.to_string(),
+                c2: color2.to_string(),
             },
         );
 
-        let c1 = CString::new(split.0.to_string()).unwrap().into_raw();
-        let c2 = CString::new(split.1.to_string()).unwrap().into_raw();
+        let c1 = CString::new(color1).unwrap().into_raw();
+        let c2 = CString::new(color2).unwrap().into_raw();
 
         let result = ColorResult { c1, c2 };
 
