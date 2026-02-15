@@ -98,7 +98,7 @@ pub fn set(author_host: String, colors: Colors) {
     let _ = conn.exec::<bool, &str, mysql::Params>(&statement, params! { author_host, c1, c2 });
 }
 
-extern "C" fn get_color_ffi(name: *const c_char) -> ColorResult {
+pub extern "C" fn get_color_ffi(name: *const c_char) -> ColorResult {
     let name = unsafe { CStr::from_ptr(name) }.to_str().unwrap();
 
     let cache = COLOR_CACHE.get().unwrap();
