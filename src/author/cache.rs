@@ -1,8 +1,10 @@
-use crate::{database, Colors};
+use crate::{database, ColorResult, Colors};
 use arc_swap::ArcSwap;
 use mysql::params;
 use mysql::prelude::Queryable;
 use std::collections::HashMap;
+use std::ffi::CStr;
+use std::os::raw::c_char;
 use std::sync::{Arc, OnceLock};
 
 type ColorMap = HashMap<String, Colors>;
@@ -94,4 +96,16 @@ pub fn set(author_host: String, colors: Colors) {
     .to_string();
 
     let _ = conn.exec::<bool, &str, mysql::Params>(&statement, params! { author_host, c1, c2 });
+}
+
+extern "C" fn get_color_ffi(name: *const c_char) -> ColorResult {
+    let name = unsafe { CStr::from_ptr(name) }.to_str().unwrap();
+
+    let cache = COLOR_CACHE.get().unwrap();
+    let snapshot = cache.load();
+
+    match snapshot.get(name) {
+        Some(colors) => ColorResult::from(colors),
+        None => ColorResult::default(),
+    }
 }

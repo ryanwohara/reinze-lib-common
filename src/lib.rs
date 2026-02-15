@@ -6,6 +6,37 @@ use format_num::NumberFormat;
 #[allow(unused_imports)]
 use mysql::{prelude::*, *};
 use regex::Regex;
+use std::ffi::CString;
+use std::os::raw::c_char;
+
+#[repr(C)]
+pub struct PluginContext {
+    pub cmd: *const c_char,
+    pub param: *const c_char,
+    pub author: *const c_char,
+    pub get_color: extern "C" fn(*const c_char) -> ColorResult,
+}
+
+#[repr(C)]
+pub struct ColorResult {
+    pub c1: *const c_char,
+    pub c2: *const c_char,
+}
+
+impl From<&Colors> for ColorResult {
+    fn from(colors: &Colors) -> Self {
+        let c1 = CString::new(colors.c1.to_string()).unwrap().into_raw();
+        let c2 = CString::new(colors.c2.to_string()).unwrap().into_raw();
+
+        ColorResult { c1, c2 }
+    }
+}
+
+impl Default for ColorResult {
+    fn default() -> Self {
+        Self::from(&Colors::default())
+    }
+}
 
 pub fn capitalize(s: &str) -> String {
     let mut c = s.chars();
