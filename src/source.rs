@@ -50,14 +50,14 @@ impl Source {
     }
 
     pub async fn get_colors(&self) -> Colors {
-        self.author.get_colors().await
+        self.author.get_colors()
     }
 
     pub async fn set_colors(&self, colors: Colors) {
-        self.author.set_colors(colors).await
+        self.author.set_colors(colors)
     }
 
     pub async fn clear_colors(&self) {
-        self.author.clear_colors().await
+        self.author.clear_colors()
     }
 }

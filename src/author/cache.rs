@@ -1,53 +1,48 @@
 use crate::{database, Colors};
-use moka::future::Cache;
+use arc_swap::ArcSwap;
 use mysql::params;
 use mysql::prelude::Queryable;
-use once_cell::sync::Lazy;
-use std::time::Duration;
+use std::collections::HashMap;
+use std::sync::{Arc, OnceLock};
 
-static CACHE: Lazy<Cache<String, Colors>> = Lazy::new(|| {
-    Cache::builder()
-        .max_capacity(50_000)
-        .time_to_live(Duration::from_secs(900))
-        .build()
-});
+type ColorMap = HashMap<String, Colors>;
+type ColorCache = Arc<ArcSwap<ColorMap>>;
 
-pub async fn get(author_host: String) -> Colors {
-    CACHE
-        .get_with(author_host.to_string(), async move {
-            let mut conn = match database::connect() {
-                Ok(conn) => conn,
-                Err(e) => {
-                    println!("Error connecting to database: {}", e);
-                    return Colors::default();
-                }
-            };
+static COLOR_CACHE: OnceLock<ColorCache> = OnceLock::new();
 
-            let colors: (String, String) = match conn.exec_first(
-                "SELECT color1, color2 FROM colors WHERE host = :author_host",
-                params! { author_host },
-            ) {
-                Ok(Some(colors)) => colors,
-                Ok(None) => (Colors::color1(), Colors::color2()),
-                Err(e) => {
-                    println!("Error getting rsn: {}", e);
-                    return Colors::default();
-                }
-            };
-
-            let c1 = colors.0;
-            let c2 = colors.1;
-
-            Colors { c1, c2 }
-        })
-        .await
+pub async fn init() {
+    let cache = Arc::new(ArcSwap::from_pointee(HashMap::new()));
+    COLOR_CACHE
+        .set(cache.clone())
+        .expect("Color cache failed to initialize");
 }
 
-pub async fn set(author_host: String, colors: Colors) {
+pub fn get(author_host: String) -> Colors {
+    let cache = COLOR_CACHE.get().expect("Cache not initialized");
+
+    let map = cache.load();
+
+    map.get(&author_host)
+        .unwrap_or(&Colors::default())
+        .to_owned()
+}
+
+pub fn upsert_color(name: String, color: Colors) {
+    let cache = COLOR_CACHE.get().expect("COLOR_CACHE not initialized");
+
+    let current = cache.load();
+    let mut new_map = (**current).clone();
+
+    new_map.insert(name, color);
+
+    cache.store(Arc::new(new_map));
+}
+
+pub fn set(author_host: String, colors: Colors) {
     let c1 = colors.c1.to_string();
     let c2 = colors.c2.to_string();
 
-    CACHE.insert(author_host.to_string(), colors).await;
+    upsert_color(author_host.to_string(), colors);
 
     let mut conn = match database::connect() {
         Ok(conn) => conn,

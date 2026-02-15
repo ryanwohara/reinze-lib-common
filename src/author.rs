@@ -1,8 +1,8 @@
-mod cache;
+pub mod cache;
 
 use crate::Colors;
+use tokio::runtime::Handle;
 
-#[derive(Clone)]
 pub struct Author {
     pub nick: String,
     pub host: String,
@@ -11,6 +11,7 @@ pub struct Author {
     #[allow(dead_code)]
     pub address: String,
     pub full: String,
+    pub runtime: Handle,
 }
 
 impl Author {
@@ -18,6 +19,7 @@ impl Author {
     where
         T: ToString,
     {
+        let runtime = tokio::runtime::Handle::current();
         let author = a.to_string();
         let (nick, mut host) = author.split_once("!").unwrap_or(("", &author));
         let replaced;
@@ -34,6 +36,7 @@ impl Author {
             ident: ident.to_string(),
             address: address.to_string(),
             full: author.to_string(),
+            runtime,
         }
     }
 
@@ -70,21 +73,19 @@ impl Author {
     }
 
     pub fn colors(&self) -> Colors {
-        let rt = tokio::runtime::Runtime::new().unwrap();
-
-        rt.block_on(async { self.get_colors().await })
+        self.get_colors()
     }
 
-    pub async fn get_colors(&self) -> Colors {
-        cache::get(self.host.to_string()).await
+    pub fn get_colors(&self) -> Colors {
+        cache::get(self.host.to_string())
     }
 
-    pub async fn set_colors(&self, colors: Colors) {
-        cache::set(self.host.to_string(), colors).await
+    pub fn set_colors(&self, colors: Colors) {
+        cache::set(self.host.to_string(), colors)
     }
 
-    pub async fn clear_colors(&self) {
-        cache::set(self.host.to_string(), Colors::default()).await
+    pub fn clear_colors(&self) {
+        self.set_colors(Colors::default())
     }
 }
 

@@ -18,7 +18,7 @@ pub fn capitalize(s: &str) -> String {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Colors {
     pub c1: String,
     pub c2: String,
@@ -33,30 +33,8 @@ impl Colors {
         "04".to_string()
     }
 
-    pub fn c0<T>(&self, s: T, i: u32) -> String
-    where
-        T: ToString,
-    {
-        let color = match i {
-            1 => &self.c1,
-            2 | _ => &self.c2,
-        };
-
-        format!("\x03{}{}", color.to_string(), s.to_string())
-    }
-
-    pub fn c1<T>(&self, str: T) -> String
-    where
-        T: ToString,
-    {
-        self.c0(str, 1)
-    }
-
-    pub fn c2<T>(&self, str: T) -> String
-    where
-        T: ToString,
-    {
-        self.c0(str, 2)
+    pub async fn init() {
+        author::cache::init().await;
     }
 }
 
