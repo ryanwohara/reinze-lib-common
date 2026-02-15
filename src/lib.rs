@@ -14,7 +14,7 @@ pub struct PluginContext {
     pub cmd: *const c_char,
     pub param: *const c_char,
     pub author: *const c_char,
-    pub get_color: extern "C" fn(*const c_char, *const c_char) -> ColorResult,
+    pub color: extern "C" fn(*const c_char, *const c_char) -> ColorResult,
 }
 
 #[repr(C)]
