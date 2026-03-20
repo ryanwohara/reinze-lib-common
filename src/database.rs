@@ -1,14 +1,12 @@
 use dotenv::dotenv;
 use mysql::*;
+use std::sync::LazyLock;
+
+static POOL: LazyLock<Pool> =
+    LazyLock::new(|| Pool::new(get_connection_string().as_str()).expect("Failed to create database pool"));
 
 pub fn connect() -> std::result::Result<PooledConn, Error> {
-    get_connection(&get_connection_string())
-}
-
-fn get_connection(url: &str) -> std::result::Result<PooledConn, Error> {
-    let pool = Pool::new(url)?;
-
-    pool.get_conn()
+    POOL.get_conn()
 }
 
 fn get_connection_string() -> String {

@@ -8,6 +8,7 @@ use mysql::{prelude::*, *};
 use regex::Regex;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
+use std::sync::LazyLock;
 
 #[repr(C)]
 pub struct PluginContext {
@@ -64,8 +65,8 @@ impl Colors {
         "04".to_string()
     }
 
-    pub async fn init() {
-        author::cache::init().await;
+    pub fn init() {
+        author::cache::init();
     }
 }
 
@@ -155,11 +156,12 @@ pub fn commas_from_string(n: &str, f: &str) -> String {
     commas(n, f)
 }
 
+static TRAILING_ZEROES_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\.?0+$").unwrap());
+
 // Removes the trailing zeroes from a string (intended to be used on a float->&str that may have commas)
 pub fn remove_trailing_zeroes(str: &str) -> String {
-    let re = Regex::new(r"\.?0+$").unwrap();
-
-    re.replace_all(str, "").to_string()
+    TRAILING_ZEROES_RE.replace_all(str, "").to_string()
 }
 
 pub fn unranked(v: Vec<String>) -> String {
@@ -389,5 +391,140 @@ mod tests {
         assert_eq!(remove_trailing_zeroes("100,000.0"), "100,000");
         assert_eq!(remove_trailing_zeroes("1,000,000.0"), "1,000,000");
         assert_eq!(remove_trailing_zeroes("10,000,000.0"), "10,000,000");
+    }
+
+    #[test]
+    fn test_remove_trailing_zeroes_partial() {
+        assert_eq!(remove_trailing_zeroes("1.50"), "1.5");
+        assert_eq!(remove_trailing_zeroes("3.14"), "3.14");
+        assert_eq!(remove_trailing_zeroes("2.100"), "2.1");
+        assert_eq!(remove_trailing_zeroes("99.990"), "99.99");
+    }
+
+    #[test]
+    fn test_remove_trailing_zeroes_no_decimal() {
+        assert_eq!(remove_trailing_zeroes("100"), "1");
+        assert_eq!(remove_trailing_zeroes("42"), "42");
+        assert_eq!(remove_trailing_zeroes("7"), "7");
+    }
+
+    #[test]
+    fn test_remove_trailing_zeroes_empty() {
+        assert_eq!(remove_trailing_zeroes(""), "");
+    }
+
+    #[test]
+    fn test_unranked_empty() {
+        assert_eq!(unranked(vec![]), c2("Unranked"));
+    }
+
+    #[test]
+    fn test_unranked_with_values() {
+        let result = unranked(vec!["a".to_string(), "b".to_string()]);
+        let expected = format!("a{}b", c1(" | "));
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_unranked_single() {
+        assert_eq!(unranked(vec!["solo".to_string()]), "solo");
+    }
+
+    #[test]
+    fn test_not_found_empty() {
+        assert_eq!(not_found(vec![]), c2("Not found"));
+    }
+
+    #[test]
+    fn test_not_found_with_values() {
+        let result = not_found(vec!["x".to_string(), "y".to_string()]);
+        let expected = format!("x{}y", c1(" | "));
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_not_found_single() {
+        assert_eq!(not_found(vec!["only".to_string()]), "only");
+    }
+
+    #[test]
+    fn test_convert_split_to_string() {
+        assert_eq!(
+            convert_split_to_string(vec!["a", "b", "c"]),
+            vec!["a".to_string(), "b".to_string(), "c".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_convert_split_to_string_empty() {
+        let empty: Vec<&str> = vec![];
+        let expected: Vec<String> = vec![];
+        assert_eq!(convert_split_to_string(empty), expected);
+    }
+
+    #[test]
+    fn test_colors_default() {
+        let colors = Colors::default();
+        assert_eq!(colors.c1, "14");
+        assert_eq!(colors.c2, "04");
+    }
+
+    #[test]
+    fn test_colors_static_methods() {
+        assert_eq!(Colors::color1(), "14");
+        assert_eq!(Colors::color2(), "04");
+    }
+
+    #[test]
+    fn test_commas_negative() {
+        assert_eq!(commas(-1000.0, "d"), "-1,000");
+        assert_eq!(commas(-1.0, "d"), "-1");
+    }
+
+    #[test]
+    fn test_commas_float_format() {
+        assert_eq!(commas(1234.56, ".2f"), "1,234.56");
+        assert_eq!(commas(0.5, ".1f"), "0.5");
+    }
+
+    #[test]
+    fn test_commas_from_string_invalid() {
+        assert_eq!(commas_from_string("abc", "d"), "0");
+        assert_eq!(commas_from_string("", "d"), "0");
+    }
+
+    #[test]
+    fn test_commas_from_string_negative() {
+        assert_eq!(commas_from_string("-1000", "d"), "-1,000");
+    }
+
+    #[test]
+    fn test_capitalize_unicode() {
+        assert_eq!(capitalize("über"), "Über");
+    }
+
+    #[test]
+    fn test_capitalize_single_char() {
+        assert_eq!(capitalize("a"), "A");
+        assert_eq!(capitalize("Z"), "Z");
+    }
+
+    #[test]
+    fn test_c_functions_accept_non_str() {
+        assert_eq!(c1(42), "\x031442");
+        assert_eq!(c2(3.14), "\x03043.14");
+        assert_eq!(c3(true), "\x0305true");
+        assert_eq!(c4(-1), "\x0303-1");
+        assert_eq!(c5(0), "\x03070");
+    }
+
+    #[test]
+    fn test_l_with_non_str() {
+        assert_eq!(l(42), "\x0314[\x030442\x0314]");
+    }
+
+    #[test]
+    fn test_p_with_non_str() {
+        assert_eq!(p(42), "\x0314(\x030442\x0314)");
     }
 }
