@@ -60,6 +60,14 @@ impl Source {
     pub fn clear_colors(&self) {
         self.author.clear_colors()
     }
+
+    pub fn not_found(&self, v: Vec<String>) -> String {
+        if v.is_empty() {
+            self.c2("Not found")
+        } else {
+            v.join(&self.c1(" | "))
+        }
+    }
 }
 
 #[cfg(test)]
