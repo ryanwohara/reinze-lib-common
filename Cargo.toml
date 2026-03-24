@@ -13,6 +13,7 @@ repository = "https://github.com/ryanwohara/reinze-lib-common"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1"
 arc-swap = "1.8.2"
 dotenv = "0.15.0"
 format_num = "0.1.0"

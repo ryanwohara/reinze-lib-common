@@ -1,5 +1,6 @@
 pub mod author;
 pub mod database;
+pub mod snapshot;
 pub mod source;
 
 use format_num::NumberFormat;
