@@ -58,6 +58,25 @@ pub fn get_snapshot(
     Ok(result)
 }
 
+/// Retrieve the most recent snapshot regardless of age.
+pub fn get_latest_snapshot(
+    game: &str,
+    mode: &str,
+    rsn: &str,
+) -> Result<Option<String>> {
+    let mut conn = database::connect()
+        .map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
+
+    let result: Option<String> = conn
+        .exec_first(
+            "SELECT data FROM hiscores_snapshots WHERE game = :game AND mode = :mode AND rsn = :rsn ORDER BY snapshot_at DESC LIMIT 1",
+            params! { "game" => game, "mode" => mode, "rsn" => rsn },
+        )
+        .context("failed to query latest snapshot")?;
+
+    Ok(result)
+}
+
 /// Get all distinct RSNs tracked for a given game (for scheduled snapshots).
 pub fn get_tracked_players(game: &str) -> Result<Vec<String>> {
     let mut conn = database::connect()
