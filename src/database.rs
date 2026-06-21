@@ -1,23 +1,32 @@
 use dotenv::dotenv;
 use mysql::*;
-use std::sync::LazyLock;
 
-static POOL: LazyLock<Pool> = LazyLock::new(|| {
-    Pool::new(get_connection_string().as_str()).expect("Failed to create database pool")
-});
-
-pub fn connect() -> std::result::Result<PooledConn, Error> {
-    POOL.get_conn()
+/// Opens a fresh connection per call.
+///
+/// These plugins are loaded behind `dlopen`/`dlclose` once per command, and Rust
+/// never drops `static`s on unload — so a long-lived static `Pool` leaked its
+/// sockets every command (eventually "Too many open files"). A standalone `Conn`
+/// is closed by its `Drop` when the command finishes, before the library unloads.
+///
+/// `Opts::from_url` is used (rather than the `From<&str>` conversion, which
+/// panics on a bad URL) so misconfiguration returns an `Err` instead of
+/// unwinding across the plugin's FFI boundary.
+pub fn connect() -> std::result::Result<Conn, Error> {
+    let opts = Opts::from_url(&get_connection_string())?;
+    Conn::new(opts)
 }
 
 fn get_connection_string() -> String {
     dotenv().ok();
 
-    let host = std::env::var("DB_HOST").expect("DB_HOST must be set");
-    let port = std::env::var("DB_PORT").expect("DB_PORT must be set");
-    let user = std::env::var("DB_USER").expect("DB_USER must be set");
-    let pass = std::env::var("DB_PASS").expect("DB_PASS must be set");
-    let db = std::env::var("DB_NAME").expect("DB_NAME must be set");
+    // Missing vars default to empty rather than panicking; the resulting
+    // connection attempt then fails cleanly and is reported as an `Err`.
+    let var = |name: &str| std::env::var(name).unwrap_or_default();
+    let host = var("DB_HOST");
+    let port = var("DB_PORT");
+    let user = var("DB_USER");
+    let pass = var("DB_PASS");
+    let db = var("DB_NAME");
 
     format!("mysql://{user}:{pass}@{host}:{port}/{db}")
 }
