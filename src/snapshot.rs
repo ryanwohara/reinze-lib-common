@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
 use mysql::prelude::Queryable;
-use mysql::{params, from_row};
+use mysql::{from_row, params};
 use regex::Regex;
 
 use crate::database;
@@ -26,8 +26,8 @@ pub fn parse_duration(s: &str) -> Result<u64> {
 
 /// Store a snapshot of raw hiscores data for a player.
 pub fn save_snapshot(game: &str, mode: &str, rsn: &str, data: &str) -> Result<()> {
-    let mut conn = database::connect()
-        .map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
+    let mut conn =
+        database::connect().map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
 
     conn.exec_drop(
         "INSERT INTO hiscores_snapshots (game, mode, rsn, snapshot_at, data) VALUES (:game, :mode, :rsn, NOW(), :data)",
@@ -39,14 +39,9 @@ pub fn save_snapshot(game: &str, mode: &str, rsn: &str, data: &str) -> Result<()
 }
 
 /// Retrieve the most recent snapshot at least `hours_ago` hours old.
-pub fn get_snapshot(
-    game: &str,
-    mode: &str,
-    rsn: &str,
-    hours_ago: u64,
-) -> Result<Option<String>> {
-    let mut conn = database::connect()
-        .map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
+pub fn get_snapshot(game: &str, mode: &str, rsn: &str, hours_ago: u64) -> Result<Option<String>> {
+    let mut conn =
+        database::connect().map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
 
     let result: Option<String> = conn
         .exec_first(
@@ -59,13 +54,9 @@ pub fn get_snapshot(
 }
 
 /// Retrieve the most recent snapshot regardless of age.
-pub fn get_latest_snapshot(
-    game: &str,
-    mode: &str,
-    rsn: &str,
-) -> Result<Option<String>> {
-    let mut conn = database::connect()
-        .map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
+pub fn get_latest_snapshot(game: &str, mode: &str, rsn: &str) -> Result<Option<String>> {
+    let mut conn =
+        database::connect().map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
 
     let result: Option<String> = conn
         .exec_first(
@@ -79,8 +70,8 @@ pub fn get_latest_snapshot(
 
 /// Get all distinct RSNs tracked for a given game (for scheduled snapshots).
 pub fn get_tracked_players(game: &str) -> Result<Vec<String>> {
-    let mut conn = database::connect()
-        .map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
+    let mut conn =
+        database::connect().map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
 
     let rows: Vec<mysql::Row> = conn
         .exec(

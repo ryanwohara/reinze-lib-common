@@ -63,7 +63,12 @@ impl Author {
         T: ToString,
     {
         let colors = unsafe { self.colors() };
-        format!("{}{}{}", wrap("[", &colors.c1), wrap(&s.to_string(), &colors.c2), wrap("]", &colors.c1))
+        format!(
+            "{}{}{}",
+            wrap("[", &colors.c1),
+            wrap(&s.to_string(), &colors.c2),
+            wrap("]", &colors.c1)
+        )
     }
 
     pub fn p<T>(&self, s: T) -> String
@@ -71,7 +76,12 @@ impl Author {
         T: ToString,
     {
         let colors = unsafe { self.colors() };
-        format!("{}{}{}", wrap("(", &colors.c1), wrap(&s.to_string(), &colors.c2), wrap(")", &colors.c1))
+        format!(
+            "{}{}{}",
+            wrap("(", &colors.c1),
+            wrap(&s.to_string(), &colors.c2),
+            wrap(")", &colors.c1)
+        )
     }
 
     pub unsafe fn colors(&self) -> Colors {
@@ -110,7 +120,10 @@ mod tests {
     use crate::ColorResult;
 
     // Stub FFI function for tests — returns default colors
-    extern "C" fn stub_color(_host: *const std::os::raw::c_char, _colors: *const std::os::raw::c_char) -> ColorResult {
+    extern "C" fn stub_color(
+        _host: *const std::os::raw::c_char,
+        _colors: *const std::os::raw::c_char,
+    ) -> ColorResult {
         ColorResult::default()
     }
 

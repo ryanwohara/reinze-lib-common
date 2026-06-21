@@ -103,14 +103,19 @@ fn cache_get(author_host: &str) -> Option<Colors> {
 
 pub extern "C" fn color_ffi(host: *const c_char, to_store: *const c_char) -> ColorResult {
     let hostname = unsafe { CStr::from_ptr(host) }.to_str().unwrap_or_default();
-    let colors = unsafe { CStr::from_ptr(to_store) }.to_str().unwrap_or_default();
+    let colors = unsafe { CStr::from_ptr(to_store) }
+        .to_str()
+        .unwrap_or_default();
 
     if colors.is_empty() {
         let colors = get(hostname);
         ColorResult::from(&colors)
     } else {
         let Some((color1, color2)) = colors.split_once(",") else {
-            log::error!("color_ffi: invalid color format (expected 'c1,c2'): {:?}", colors);
+            log::error!(
+                "color_ffi: invalid color format (expected 'c1,c2'): {:?}",
+                colors
+            );
             return ColorResult::default();
         };
 

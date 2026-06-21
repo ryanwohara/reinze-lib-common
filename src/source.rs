@@ -6,6 +6,7 @@ pub struct Source {
     pub author: Author,
     pub command: String,
     pub query: String,
+    pub channel: String,
 }
 
 impl Source {
@@ -18,7 +19,17 @@ impl Source {
             author,
             command: command.to_string(),
             query: query.to_string(),
+            channel: String::new(),
         }
+    }
+
+    /// Sets the channel (or query target) the command originated from.
+    pub fn with_channel<T>(mut self, channel: T) -> Self
+    where
+        T: ToString,
+    {
+        self.channel = channel.to_string();
+        self
     }
 
     pub fn c1<T>(&self, s: T) -> String
@@ -75,12 +86,20 @@ mod tests {
     use super::*;
     use crate::ColorResult;
 
-    extern "C" fn stub_color(_host: *const std::os::raw::c_char, _colors: *const std::os::raw::c_char) -> ColorResult {
+    extern "C" fn stub_color(
+        _host: *const std::os::raw::c_char,
+        _colors: *const std::os::raw::c_char,
+    ) -> ColorResult {
         ColorResult::default()
     }
 
     fn make_source(rsn_n: &str, author_str: &str, command: &str, query: &str) -> Source {
-        Source::create(rsn_n, Author::create(author_str, stub_color), command, query)
+        Source::create(
+            rsn_n,
+            Author::create(author_str, stub_color),
+            command,
+            query,
+        )
     }
 
     #[test]

@@ -17,6 +17,9 @@ pub struct PluginContext {
     pub param: *const c_char,
     pub author: *const c_char,
     pub color: extern "C" fn(*const c_char, *const c_char) -> ColorResult,
+    // Appended last for ABI compatibility: plugins built against the older
+    // 4-field layout read the same offsets and simply ignore this field.
+    pub channel: *const c_char,
 }
 
 #[repr(C)]
@@ -157,8 +160,7 @@ pub fn commas_from_string(n: &str, f: &str) -> String {
     commas(n, f)
 }
 
-static TRAILING_ZEROES_RE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\.?0+$").unwrap());
+static TRAILING_ZEROES_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\.?0+$").unwrap());
 
 // Removes the trailing zeroes from a string (intended to be used on a float->&str that may have commas)
 pub fn remove_trailing_zeroes(str: &str) -> String {
