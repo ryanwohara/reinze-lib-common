@@ -43,10 +43,15 @@ pub fn get_snapshot(game: &str, mode: &str, rsn: &str, hours_ago: u64) -> Result
     let mut conn =
         database::connect().map_err(|e| anyhow::anyhow!("database connection failed: {}", e))?;
 
+    // `hours_ago` is inlined rather than bound: a placeholder used as the
+    // quantity in `INTERVAL ? HOUR` fails to prepare on some MySQL versions.
+    // It is a trusted `u64`, so direct interpolation is injection-safe.
     let result: Option<String> = conn
         .exec_first(
-            "SELECT data FROM hiscores_snapshots WHERE game = :game AND mode = :mode AND rsn = :rsn AND snapshot_at <= DATE_SUB(NOW(), INTERVAL :hours HOUR) ORDER BY snapshot_at DESC LIMIT 1",
-            params! { "game" => game, "mode" => mode, "rsn" => rsn, "hours" => hours_ago },
+            format!(
+                "SELECT data FROM hiscores_snapshots WHERE game = :game AND mode = :mode AND rsn = :rsn AND snapshot_at <= DATE_SUB(NOW(), INTERVAL {hours_ago} HOUR) ORDER BY snapshot_at DESC LIMIT 1"
+            ),
+            params! { "game" => game, "mode" => mode, "rsn" => rsn },
         )
         .context("failed to query snapshot")?;
 
