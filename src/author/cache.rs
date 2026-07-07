@@ -111,9 +111,9 @@ pub extern "C" fn color_ffi(host: *const c_char, to_store: *const c_char) -> Col
         let colors = get(hostname);
         ColorResult::from(&colors)
     } else {
-        let Some((color1, color2)) = colors.split_once(",") else {
+        let Some((color1, color2)) = colors.split_once("|") else {
             log::error!(
-                "color_ffi: invalid color format (expected 'c1,c2'): {:?}",
+                "color_ffi: invalid color format (expected 'c1|c2'): {:?}",
                 colors
             );
             return ColorResult::default();
