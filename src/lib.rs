@@ -83,23 +83,6 @@ impl Default for Colors {
     }
 }
 
-// Gray
-// c1
-pub fn c1<T>(s: T) -> String
-where
-    T: ToString,
-{
-    format!("\x0314{}", s.to_string())
-}
-
-// Red
-// c2
-pub fn c2<T>(s: T) -> String
-where
-    T: ToString,
-{
-    format!("\x0304{}", s.to_string())
-}
 
 // Red
 // c3
@@ -128,24 +111,6 @@ where
     format!("\x0307{}", s.to_string())
 }
 
-// A function for wrapping a string in brackets that are colored gray
-// l
-pub fn l<T>(s: T) -> String
-where
-    T: ToString,
-{
-    format!("{}{}{}", c1("["), c2(s), c1("]"))
-}
-
-// A function for wrapping a string in parentheses that are colored gray
-// p
-pub fn p<T>(s: T) -> String
-where
-    T: ToString,
-{
-    format!("{}{}{}", c1("("), c2(s), c1(")"))
-}
-
 // Adds commas to a number
 pub fn commas(n: f64, f: &str) -> String {
     let num = NumberFormat::new();
@@ -167,21 +132,6 @@ pub fn remove_trailing_zeroes(str: &str) -> String {
     TRAILING_ZEROES_RE.replace_all(str, "").to_string()
 }
 
-pub fn unranked(v: Vec<String>) -> String {
-    if v.is_empty() {
-        c2("Unranked")
-    } else {
-        v.join(&c1(" | "))
-    }
-}
-
-pub fn not_found(v: Vec<String>) -> String {
-    if v.is_empty() {
-        c2("Not found")
-    } else {
-        v.join(&c1(" | "))
-    }
-}
 
 pub fn convert_split_to_string(split: Vec<&str>) -> Vec<String> {
     split.into_iter().map(|s| s.to_string()).collect()
@@ -209,27 +159,6 @@ mod tests {
         assert_eq!(capitalize(""), "");
     }
 
-    #[test]
-    fn test_c1() {
-        assert_eq!(c1("hello"), "\x0314hello");
-        assert_eq!(c1("Hello"), "\x0314Hello");
-        assert_eq!(c1("HELLO"), "\x0314HELLO");
-        assert_eq!(c1("hELLO"), "\x0314hELLO");
-        assert_eq!(c1("hElLo"), "\x0314hElLo");
-        assert_eq!(c1("123"), "\x0314123");
-        assert_eq!(c1(""), "\x0314");
-    }
-
-    #[test]
-    fn test_c2() {
-        assert_eq!(c2("hello"), "\x0304hello");
-        assert_eq!(c2("Hello"), "\x0304Hello");
-        assert_eq!(c2("HELLO"), "\x0304HELLO");
-        assert_eq!(c2("hELLO"), "\x0304hELLO");
-        assert_eq!(c2("hElLo"), "\x0304hElLo");
-        assert_eq!(c2("123"), "\x0304123");
-        assert_eq!(c2(""), "\x0304");
-    }
 
     #[test]
     fn test_c3() {
@@ -264,27 +193,6 @@ mod tests {
         assert_eq!(c5(""), "\x0307");
     }
 
-    #[test]
-    fn test_l() {
-        assert_eq!(l("hello"), "\x0314[\x0304hello\x0314]");
-        assert_eq!(l("Hello"), "\x0314[\x0304Hello\x0314]");
-        assert_eq!(l("HELLO"), "\x0314[\x0304HELLO\x0314]");
-        assert_eq!(l("hELLO"), "\x0314[\x0304hELLO\x0314]");
-        assert_eq!(l("hElLo"), "\x0314[\x0304hElLo\x0314]");
-        assert_eq!(l("123"), "\x0314[\x0304123\x0314]");
-        assert_eq!(l(""), "\x0314[\x0304\x0314]");
-    }
-
-    #[test]
-    fn test_p() {
-        assert_eq!(p("hello"), "\x0314(\x0304hello\x0314)");
-        assert_eq!(p("Hello"), "\x0314(\x0304Hello\x0314)");
-        assert_eq!(p("HELLO"), "\x0314(\x0304HELLO\x0314)");
-        assert_eq!(p("hELLO"), "\x0314(\x0304hELLO\x0314)");
-        assert_eq!(p("hElLo"), "\x0314(\x0304hElLo\x0314)");
-        assert_eq!(p("123"), "\x0314(\x0304123\x0314)");
-        assert_eq!(p(""), "\x0314(\x0304\x0314)");
-    }
 
     #[test]
     fn test_commas() {
@@ -416,39 +324,6 @@ mod tests {
         assert_eq!(remove_trailing_zeroes(""), "");
     }
 
-    #[test]
-    fn test_unranked_empty() {
-        assert_eq!(unranked(vec![]), c2("Unranked"));
-    }
-
-    #[test]
-    fn test_unranked_with_values() {
-        let result = unranked(vec!["a".to_string(), "b".to_string()]);
-        let expected = format!("a{}b", c1(" | "));
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn test_unranked_single() {
-        assert_eq!(unranked(vec!["solo".to_string()]), "solo");
-    }
-
-    #[test]
-    fn test_not_found_empty() {
-        assert_eq!(not_found(vec![]), c2("Not found"));
-    }
-
-    #[test]
-    fn test_not_found_with_values() {
-        let result = not_found(vec!["x".to_string(), "y".to_string()]);
-        let expected = format!("x{}y", c1(" | "));
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn test_not_found_single() {
-        assert_eq!(not_found(vec!["only".to_string()]), "only");
-    }
 
     #[test]
     fn test_convert_split_to_string() {
@@ -514,20 +389,8 @@ mod tests {
 
     #[test]
     fn test_c_functions_accept_non_str() {
-        assert_eq!(c1(42), "\x031442");
-        assert_eq!(c2(3.14), "\x03043.14");
         assert_eq!(c3(true), "\x0305true");
         assert_eq!(c4(-1), "\x0303-1");
         assert_eq!(c5(0), "\x03070");
-    }
-
-    #[test]
-    fn test_l_with_non_str() {
-        assert_eq!(l(42), "\x0314[\x030442\x0314]");
-    }
-
-    #[test]
-    fn test_p_with_non_str() {
-        assert_eq!(p(42), "\x0314(\x030442\x0314)");
     }
 }

@@ -79,6 +79,14 @@ impl Source {
             v.join(&self.c1(" | "))
         }
     }
+
+    pub fn unranked(&self, v: Vec<String>) -> String {
+        if v.is_empty() {
+            self.c2("Unranked")
+        } else {
+            v.join(&self.c1(" | "))
+        }
+    }
 }
 
 #[cfg(test)]
